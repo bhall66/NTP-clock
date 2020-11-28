@@ -67,11 +67,16 @@ void showClockStatus() {
   int color;
   if (second()%10) return;                         // update every 10 seconds
   int syncAge = now()-lastNtpUpdateTime();         // how long has it been since last sync?
-  if (syncAge < SYNC_MARGINAL)                     // time is good & in sync
+  if (syncAge < SYNC_MARGINAL)                     // GREEN: time is good & in sync
     color = TFT_GREEN;
-  else if (syncAge < SYNC_LOST)                    // sync is 1-24 hours old
+  else if (syncAge < SYNC_LOST)                    // ORANGE: sync is 1-24 hours old
     color = TFT_ORANGE;
-  else color = TFT_RED;                            // time is stale & should not be trusted
+  else color = TFT_RED;                            // RED: time is stale, over 24 hrs old
+  if (WiFi.status()!=WL_CONNECTED) {               //          
+    color = TFT_DARKGREY;                          // GRAY: WiFi connection was lost
+    WiFi.disconnect();                             // so drop current connection
+    WiFi.begin(WIFI_SSID,WIFI_PWD);                // and attempt to reconnect
+  }
   tft.fillRoundRect(x,y,w,h,10,color);             // show clock status as a color
   tft.setTextColor(TFT_BLACK,color);
   tft.drawNumber(-WiFi.RSSI(),x+8,y+6,f);          // WiFi strength as a positive value
