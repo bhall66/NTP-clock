@@ -20,9 +20,10 @@
 
                 see w8bh.net for a detailled, step-by-step tutorial
 
-  Version Hx:   11/26/20  Initial GitHub commit
+  Version Hx:   11/27/20  Initial GitHub commit
+                11/28/20  added code to handle dropped WiFi connection
                 11/30/20  showTimeDate() mod by John Prince (WA2FZW)
-                12/02/20  showAMPM() added by John Prince (WA2FZW)
+                12/01/20  showAMPM() added by John Prince (WA2FZW)
                
  **************************************************************************/
 
