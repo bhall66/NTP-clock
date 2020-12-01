@@ -22,8 +22,8 @@
 
   Version Hx:   11/27/20  Initial GitHub commit
                 11/28/20  added code to handle dropped WiFi connection
-                11/30/20  showTimeDate() mod by John Prince (WA2FZW)
-                12/01/20  showAMPM() added by John Prince (WA2FZW)
+                11/30/20  showTimeDate() mod by John Price (WA2FZW)
+                12/01/20  showAMPM() added by John Price (WA2FZW)
                
  **************************************************************************/
 
@@ -88,7 +88,7 @@ void showClockStatus() {
 }
 
 /*
- *  Modified by John Prince (WA2FZW)
+ *  Modified by John Price (WA2FZW)
  *
  *    In the original code, this was an empty function. I added code to display either
  *    an 'A' or 'P' to the right of the local time 
