@@ -140,7 +140,7 @@ void showTimeDate(time_t t, time_t oldT, bool hr12, int x, int y) {
   showTime(t,hr12,x,y);                            // display time HH:MM:SS 
   if ((!oldT)||(hour(t)!=hour(oldT)))              // did hour change?
     showTimeZone(x,y-42);                          // update time zone
-  if (day(t)!=day(oldT))                           // did date change? 
+  if ((!oldT)||(day(t)!=day(oldT)))                // did date change? (Thanks John WA2FZW!)
     showDate(t,x+250,y);                           // update date
 }
 
