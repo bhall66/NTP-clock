@@ -1,7 +1,7 @@
 /**************************************************************************
        Title:   NTP Dual Clock
       Author:   Bruce E. Hall, w8bh.net
-        Date:   26 Nov 2020
+        Date:   02 Dec 2020
     Hardware:   Adafruit ESP32 Feather, ILI9341 TFT display module
     Software:   Arduino IDE 1.8.13 with Expressif ESP32 package 
                 TFT_eSPI Library
@@ -14,11 +14,15 @@
                 Optional time output to serial port 
                 Status indicator for time freshness & WiFi strength
 
-                see w8bh.net for a detailled, step-by-step tutorial
-
                 Before using, please update WIFI_SSID and WIFI_PWD
                 with your personal WiFi credentials.  Also, modify
                 TZ_RULE with your own Posix timezone string.
+
+                see w8bh.net for a detailled, step-by-step tutorial
+
+  Version Hx:   11/26/20  Initial GitHub commit
+                11/30/20  showTimeDate() mod by John Prince (WA2FZW)
+                12/02/20  showAMPM() added by John Prince (WA2FZW)
                
  **************************************************************************/
 
@@ -29,7 +33,7 @@
 
 #define TITLE              "NTP TIME"
 #define WIFI_SSID          "yourSSID"               
-#define WIFI_PWD           "yourPassword"    
+#define WIFI_PWD           "yourPassword"      
 #define NTP_SERVER         "pool.ntp.org"          // time.nist.gov, pool.ntp.org, etc    
     
 #define TZ_RULE            "EST5EDT,M3.2.0/2:00:00,M11.1.0/2:00:00"
@@ -38,12 +42,12 @@
 #define PRINTED_TIME             1                 // 0=NONE, 1=UTC, or 2=LOCAL
 #define TIME_FORMAT         COOKIE                 // COOKIE, ISO8601, RFC822, RFC850, RFC3339, RSS
 #define BAUDRATE            115200                 // serial output baudrate
-#define USE_12HR_FORMAT       true                 // preferred format for local time
 #define LEADING_ZERO         false                 // show "01:00" vs " 1:00"
 #define SYNC_MARGINAL         3600                 // orange status if no sync for 1 hour
 #define SYNC_LOST            86400                 // red status if no sync for 1 day   
 #define LOCAL_FORMAT_12HR     true                 // local time format 12hr "11:34" vs 24hr "23:34"
 #define UTC_FORMAT_12HR      false                 // UTC time format 12 hr "11:34" vs 24hr "23:34"
+#define DISPLAY_AMPM          true                 // if true, show 'A' for AM, 'P' for PM
 #define SCREEN_ORIENTATION       1                 // screen portrait mode:  use 1 or 3
 #define TIMECOLOR         TFT_CYAN                 // color of 7-segment time display
 #define DATECOLOR       TFT_YELLOW                 // color of displayed month & day
@@ -82,15 +86,30 @@ void showClockStatus() {
   tft.drawNumber(-WiFi.RSSI(),x+8,y+6,f);          // WiFi strength as a positive value
 }
 
-void showAMPM (int hr) {                           // not used in dual clock
+/*
+ *  Modified by John Prince (WA2FZW)
+ *
+ *    In the original code, this was an empty function. I added code to display either
+ *    an 'A' or 'P' to the right of the local time 
+ *
+ */
+
+void showAMPM ( int hr, int x, int y )
+{
+  char  ampm;                                      // Will be either 'A' or 'P'
+  if ( hr <= 11 )                                  // If the hour is 11 or less
+    ampm = 'A';                                    // It's morning
+  else                                             // Otherwise,
+    ampm = 'P';                                    // It's afternoon
+  tft.drawChar ( ampm, x, y, 4 );                  // Show AM/PM indicator 
 }
 
 void showTime(time_t t, bool hr12, int x, int y) {
   const int f=7;                                   // screen font
   tft.setTextColor(TIMECOLOR, TFT_BLACK);          // set time color
   int h=hour(t); int m=minute(t); int s=second(t); // get hours, minutes, and seconds
-  showAMPM(h);                                     // display AM/PM, if needed
-  if (hr12) {                                      // adjust hours for 12 vs 24hr format:
+  if (hr12) {                                      // if using 12hr time format,
+    if (DISPLAY_AMPM) showAMPM(h,x+220,y+14);      // show AM/PM indicator
     if (h==0) h=12;                                // 00:00 becomes 12:00
     if (h>12) h-=12;                               // 13:00 becomes 01:00
   }
