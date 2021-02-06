@@ -1,12 +1,12 @@
 /**************************************************************************
        Title:   NTP Dual Clock
       Author:   Bruce E. Hall, w8bh.net
-        Date:   02 Dec 2020
-    Hardware:   Adafruit ESP32 Feather, ILI9341 TFT display module
+        Date:   05 Feb 2021
+    Hardware:   HiLetGo ESP32, ILI9341 TFT display module
     Software:   Arduino IDE 1.8.13 with Expressif ESP32 package 
                 TFT_eSPI Library
                 ezTime Library
-       Legal:   Copyright (c) 2020  Bruce E. Hall.
+       Legal:   Copyright (c) 2021  Bruce E. Hall.
                 Open Source under the terms of the MIT License. 
                     
  Description:   Dual UTC/Local NTP Clock with TFT display 
@@ -24,13 +24,18 @@
                 11/28/20  added code to handle dropped WiFi connection
                 11/30/20  showTimeDate() mod by John Price (WA2FZW)
                 12/01/20  showAMPM() added by John Price (WA2FZW)
+                02/05/21  added support for ESP8266 modules
                
  **************************************************************************/
 
 
 #include <TFT_eSPI.h>                              // https://github.com/Bodmer/TFT_eSPI
 #include <ezTime.h>                                // https://github.com/ropg/ezTime
-#include <WiFi.h>
+#if defined(ESP32)
+#include <WiFi.h>                                  // use this WiFi lib for ESP32, or
+#elif defined (ESP8266)
+#include <ESP8266WiFi.h>                           // use this WiFi lib for ESP8266
+#endif
 
 #define TITLE              "NTP TIME"
 #define WIFI_SSID          "yourSSID"               
@@ -49,7 +54,8 @@
 #define LOCAL_FORMAT_12HR     true                 // local time format 12hr "11:34" vs 24hr "23:34"
 #define UTC_FORMAT_12HR      false                 // UTC time format 12 hr "11:34" vs 24hr "23:34"
 #define DISPLAY_AMPM          true                 // if true, show 'A' for AM, 'P' for PM
-#define SCREEN_ORIENTATION       1                 // screen portrait mode:  use 1 or 3
+#define SCREEN_ORIENTATION       1                 // screen landscape mode:  use 1 or 3
+#define LED_PIN                  2                 // built-in LED is on GPIO 2
 #define TIMECOLOR         TFT_CYAN                 // color of 7-segment time display
 #define DATECOLOR       TFT_YELLOW                 // color of displayed month & day
 #define LABEL_FGCOLOR   TFT_YELLOW                 // color of label text
@@ -227,6 +233,17 @@ void printTime() {                                 // print time to serial port
     Serial.println(local.dateTime(TIME_FORMAT));   // option 2: print local time
 }
 
+void blink(int count=1) {                          // diagnostic LED blink
+  pinMode(LED_PIN,OUTPUT);                         // make sure pin is an output
+  for (int i=0; i<count; i++) {                    // blink counter
+    digitalWrite(LED_PIN,0);                       // turn LED on 
+    delay(200);                                    // for 0.2s
+    digitalWrite(LED_PIN,1);                       // and then turn LED off
+    delay(200);                                    // for 0.2s
+  } 
+  pinMode(LED_PIN,INPUT);                          // works for both Vcc & Gnd LEDs.
+}
+
 
 // ============ MAIN PROGRAM ===================================================
 
@@ -234,6 +251,7 @@ void setup() {
   tft.init();                                      // initialize LCD screen object
   tft.setRotation(SCREEN_ORIENTATION);             // landscape screen orientation
   startupScreen();                                 // show title
+  blink(3);                                        // show sketch is starting
   Serial.begin(BAUDRATE);                          // open serial port
   setDebug(DEBUGLEVEL);                            // enable NTP debug info
   setServer(NTP_SERVER);                           // set NTP server

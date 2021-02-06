@@ -1,12 +1,12 @@
 /**************************************************************************
        Title:   NTP Clock, step 5
       Author:   Bruce E. Hall, w8bh.net
-        Date:   26 Nov 2020
-    Hardware:   Adafruit ESP32 Feather, 2.8" ILI9341 TFT
+        Date:   05 Feb 2021
+    Hardware:   HiLetGo ESP32, 2.8" ILI9341 TFT
     Software:   Arduino IDE 1.8.13 with Expressif ESP32 package 
                 TFT_eSPI Library
                 ezTime Library
-       Legal:   Copyright (c) 2020  Bruce E. Hall.
+       Legal:   Copyright (c) 2021  Bruce E. Hall.
                 Open Source under the terms of the MIT License. 
                     
  Description:   Step 5 of building an NTP-based clock with TFT display.
