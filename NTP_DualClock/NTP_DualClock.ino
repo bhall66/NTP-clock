@@ -55,7 +55,7 @@
 #define LOCAL_FORMAT_12HR     true                 // local time format 12hr "11:34" vs 24hr "23:34"
 #define UTC_FORMAT_12HR      false                 // UTC time format 12 hr "11:34" vs 24hr "23:34"
 #define DISPLAY_AMPM          true                 // if true, show 'A' for AM, 'P' for PM
-#define DAY_ABOVE_MONTH      false                 // month-above-day vs. day-above-month
+#define DATE_ABOVE_MONTH     false                 // month-above-day vs. day-above-month
 #define SCREEN_ORIENTATION       1                 // screen portrait mode:  use 1 or 3
 #define LED_PIN                  2                 // built-in LED is on GPIO 2
 #define TIMECOLOR         TFT_CYAN                 // color of 7-segment time display
@@ -148,16 +148,16 @@ void showDate(time_t t, int x, int y) {
   tft.setTextColor(DATECOLOR, TFT_BLACK);
   int i=0, m=month(t), d=day(t);                   // get date components  
   tft.fillRect(x,y,50,60,TFT_BLACK);               // erase previous date
-  if (DAY_ABOVE_MONTH) {                           // show day on top:
-    if (d<10) i = tft.drawNumber(0,x,y,f);         // draw leading zero for day
-    tft.drawNumber(d,x+i,y,f);                     // draw day 
+  if (DATE_ABOVE_MONTH) {                          // show date on top:
+    if (d<10) i = tft.drawNumber(0,x,y,f);         // draw leading zero for date
+    tft.drawNumber(d,x+i,y,f);                     // draw date 
     y += yspacing;                                 // and below it,
     tft.drawString(months[m-1],x,y,f);             // draw month
   } else {                                         // put month on top:
     tft.drawString(months[m-1],x,y,f);             // draw month
     y += yspacing;                                 // and below it,
-    if (d<10) x+=tft.drawNumber(0,x,y,f);          // draw leading zero for day
-    tft.drawNumber(d,x,y,f);                       // draw day
+    if (d<10) x+=tft.drawNumber(0,x,y,f);          // draw leading zero for date
+    tft.drawNumber(d,x,y,f);                       // draw date
   }
 }
 
