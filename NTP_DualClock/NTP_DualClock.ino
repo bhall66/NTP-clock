@@ -1,7 +1,7 @@
 /**************************************************************************
        Title:   NTP Dual Clock
       Author:   Bruce E. Hall, w8bh.net
-        Date:   05 Feb 2021
+        Date:   07 Feb 2021
     Hardware:   HiLetGo ESP32, ILI9341 TFT display module
     Software:   Arduino IDE 1.8.13 with Expressif ESP32 package 
                 TFT_eSPI Library
@@ -25,6 +25,7 @@
                 11/30/20  showTimeDate() mod by John Price (WA2FZW)
                 12/01/20  showAMPM() added by John Price (WA2FZW)
                 02/05/21  added support for ESP8266 modules
+                02/07/21  added day-above-month option
                
  **************************************************************************/
 
@@ -54,7 +55,8 @@
 #define LOCAL_FORMAT_12HR     true                 // local time format 12hr "11:34" vs 24hr "23:34"
 #define UTC_FORMAT_12HR      false                 // UTC time format 12 hr "11:34" vs 24hr "23:34"
 #define DISPLAY_AMPM          true                 // if true, show 'A' for AM, 'P' for PM
-#define SCREEN_ORIENTATION       1                 // screen landscape mode:  use 1 or 3
+#define DAY_ABOVE_MONTH      false                 // month-above-day vs. day-above-month
+#define SCREEN_ORIENTATION       1                 // screen portrait mode:  use 1 or 3
 #define LED_PIN                  2                 // built-in LED is on GPIO 2
 #define TIMECOLOR         TFT_CYAN                 // color of 7-segment time display
 #define DATECOLOR       TFT_YELLOW                 // color of displayed month & day
@@ -144,12 +146,19 @@ void showDate(time_t t, int x, int y) {
      "APR","MAY","JUN","JUL","AUG","SEP","OCT",
      "NOV","DEC"};
   tft.setTextColor(DATECOLOR, TFT_BLACK);
-  int m=month(t), d=day(t);                        // get date components  
-  tft.fillRect(x,y,50,60,TFT_BLACK);               // erase previous date       
-  tft.drawString(months[m-1],x,y,f);               // show month on top
-  y += yspacing;                                   // put day below month
-  if (d<10) x+=tft.drawNumber(0,x,y,f);            // draw leading zero for day
-  tft.drawNumber(d,x,y,f);                         // draw day
+  int i=0, m=month(t), d=day(t);                   // get date components  
+  tft.fillRect(x,y,50,60,TFT_BLACK);               // erase previous date
+  if (DAY_ABOVE_MONTH) {                           // show day on top:
+    if (d<10) i = tft.drawNumber(0,x,y,f);         // draw leading zero for day
+    tft.drawNumber(d,x+i,y,f);                     // draw day 
+    y += yspacing;                                 // and below it,
+    tft.drawString(months[m-1],x,y,f);             // draw month
+  } else {                                         // put month on top:
+    tft.drawString(months[m-1],x,y,f);             // draw month
+    y += yspacing;                                 // and below it,
+    if (d<10) x+=tft.drawNumber(0,x,y,f);          // draw leading zero for day
+    tft.drawNumber(d,x,y,f);                       // draw day
+  }
 }
 
 void showTimeZone (int x, int y) {
