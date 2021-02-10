@@ -1,7 +1,7 @@
 /**************************************************************************
        Title:   NTP Dual Clock
       Author:   Bruce E. Hall, w8bh.net
-        Date:   07 Feb 2021
+        Date:   10 Feb 2021
     Hardware:   HiLetGo ESP32, ILI9341 TFT display module
     Software:   Arduino IDE 1.8.13 with Expressif ESP32 package 
                 TFT_eSPI Library
@@ -26,6 +26,7 @@
                 12/01/20  showAMPM() added by John Price (WA2FZW)
                 02/05/21  added support for ESP8266 modules
                 02/07/21  added day-above-month option
+                02/10/21  added date-leading-zero option
                
  **************************************************************************/
 
@@ -40,24 +41,25 @@
 
 #define TITLE              "NTP TIME"
 #define WIFI_SSID          "yourSSID"               
-#define WIFI_PWD           "yourPassword"      
+#define WIFI_PWD           "yourPASSWORD"      
 #define NTP_SERVER         "pool.ntp.org"          // time.nist.gov, pool.ntp.org, etc    
     
 #define TZ_RULE            "EST5EDT,M3.2.0/2:00:00,M11.1.0/2:00:00"
 
+#define SCREEN_ORIENTATION       1                 // screen portrait mode:  use 1 or 3
+#define LED_PIN                  2                 // built-in LED is on GPIO 2
 #define DEBUGLEVEL            INFO                 // NONE, ERROR, INFO, or DEBUG
 #define PRINTED_TIME             1                 // 0=NONE, 1=UTC, or 2=LOCAL
 #define TIME_FORMAT         COOKIE                 // COOKIE, ISO8601, RFC822, RFC850, RFC3339, RSS
-#define BAUDRATE            115200                 // serial output baudrate
-#define LEADING_ZERO         false                 // show "01:00" vs " 1:00"
+#define BAUDRATE            115200                 // serial output baudrate																			 
 #define SYNC_MARGINAL         3600                 // orange status if no sync for 1 hour
-#define SYNC_LOST            86400                 // red status if no sync for 1 day   
+#define SYNC_LOST            86400                 // red status if no sync for 1 day
 #define LOCAL_FORMAT_12HR     true                 // local time format 12hr "11:34" vs 24hr "23:34"
 #define UTC_FORMAT_12HR      false                 // UTC time format 12 hr "11:34" vs 24hr "23:34"
-#define DISPLAY_AMPM          true                 // if true, show 'A' for AM, 'P' for PM
-#define DATE_ABOVE_MONTH     false                 // month-above-day vs. day-above-month
-#define SCREEN_ORIENTATION       1                 // screen portrait mode:  use 1 or 3
-#define LED_PIN                  2                 // built-in LED is on GPIO 2
+#define DISPLAY_AMPM          true                 // if true, show 'A' for AM, 'P' for PM  
+#define HOUR_LEADING_ZERO    false                 // "01:00" vs " 1:00"
+#define DATE_LEADING_ZERO     true                 // "Feb 07" vs. "Feb 7"
+#define DATE_ABOVE_MONTH     false                 // "12 Feb" vs. "Feb 12" 
 #define TIMECOLOR         TFT_CYAN                 // color of 7-segment time display
 #define DATECOLOR       TFT_YELLOW                 // color of displayed month & day
 #define LABEL_FGCOLOR   TFT_YELLOW                 // color of label text
@@ -123,7 +125,7 @@ void showTime(time_t t, bool hr12, int x, int y) {
     if (h>12) h-=12;                               // 13:00 becomes 01:00
   }
   if (h<10) {                                      // is hour a single digit?
-    if ((!hr12)||(LEADING_ZERO))                   // 24hr format: always use leading 0
+    if ((!hr12)||(HOUR_LEADING_ZERO))              // 24hr format: always use leading 0
       x+= tft.drawChar('0',x,y,f);                 // show leading zero for hours
     else {
       tft.setTextColor(TFT_BLACK,TFT_BLACK);       // black on black text     
@@ -146,17 +148,19 @@ void showDate(time_t t, int x, int y) {
      "APR","MAY","JUN","JUL","AUG","SEP","OCT",
      "NOV","DEC"};
   tft.setTextColor(DATECOLOR, TFT_BLACK);
-  int i=0, m=month(t), d=day(t);                   // get date components  
+  int i=0, m=month(t), d=day(t);                   // get date components 
   tft.fillRect(x,y,50,60,TFT_BLACK);               // erase previous date
-  if (DATE_ABOVE_MONTH) {                          // show date on top:
-    if (d<10) i = tft.drawNumber(0,x,y,f);         // draw leading zero for date
+  if (DATE_ABOVE_MONTH) {                          // show date on top -----
+    if ((DATE_LEADING_ZERO) && (d<10))             // do we need a leading zero?
+      i = tft.drawNumber(0,x,y,f);                 // draw leading zero
     tft.drawNumber(d,x+i,y,f);                     // draw date 
-    y += yspacing;                                 // and below it,
+    y += yspacing;                                 // and below it, the month
     tft.drawString(months[m-1],x,y,f);             // draw month
-  } else {                                         // put month on top:
+  } else {                                         // put month on top ----
     tft.drawString(months[m-1],x,y,f);             // draw month
-    y += yspacing;                                 // and below it,
-    if (d<10) x+=tft.drawNumber(0,x,y,f);          // draw leading zero for date
+    y += yspacing;                                 // and below it, the date
+    if ((DATE_LEADING_ZERO) && (d<10))             // do we need a leading zero?
+      x+=tft.drawNumber(0,x,y,f);                  // draw leading zero
     tft.drawNumber(d,x,y,f);                       // draw date
   }
 }
