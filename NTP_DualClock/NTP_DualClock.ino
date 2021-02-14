@@ -1,8 +1,8 @@
 /**************************************************************************
        Title:   NTP Dual Clock
       Author:   Bruce E. Hall, w8bh.net
-        Date:   10 Feb 2021
-    Hardware:   HiLetGo ESP32, ILI9341 TFT display module
+        Date:   13 Feb 2021
+    Hardware:   HiLetGo ESP32 or D1 Mini ESP8266, ILI9341 TFT display
     Software:   Arduino IDE 1.8.13 with Expressif ESP32 package 
                 TFT_eSPI Library
                 ezTime Library

@@ -1,8 +1,8 @@
 /**************************************************************************
        Title:   NTP Clock, step 8
       Author:   Bruce E. Hall, w8bh.net
-        Date:   05 Nov 2021
-    Hardware:   HiLetGo ESP32, 2.8" ILI9341 TFT
+        Date:   13 Feb 2021
+    Hardware:   HiLetGo ESP32, ESP8266, 2.8" ILI9341 TFT
     Software:   Arduino IDE 1.8.13 with Expressif ESP32 package 
                 TFT_eSPI Library
                 ezTime Library
@@ -19,7 +19,11 @@
 
 #include <TFT_eSPI.h>                              // https://github.com/Bodmer/TFT_eSPI
 #include <ezTime.h>                                // https://github.com/ropg/ezTime
-#include <WiFi.h>
+#if defined(ESP32)
+#include <WiFi.h>                                  // use this WiFi lib for ESP32, or
+#elif defined (ESP8266)
+#include <ESP8266WiFi.h>                           // use this WiFi lib for ESP8266
+#endif
 
 #define TITLE              "NTP TIME"
 #define WIFI_SSID          "yourSSID"               
